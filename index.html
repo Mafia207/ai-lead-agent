@@ -1,0 +1,296 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Bright Smile Dental — Chat</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          colors: {
+            dental: {
+              50: '#f0fdfa',
+              100: '#ccfbf1',
+              500: '#14b8a6',
+              600: '#0d9488',
+              700: '#0f766e',
+              800: '#115e59',
+            },
+          },
+          animation: {
+            'bounce-dot': 'bounce-dot 1.4s infinite ease-in-out both',
+          },
+          keyframes: {
+            'bounce-dot': {
+              '0%, 80%, 100%': { transform: 'scale(0)' },
+              '40%': { transform: 'scale(1)' },
+            },
+          },
+        },
+      },
+    };
+  </script>
+  <style>
+    #chat-panel {
+      transform-origin: bottom right;
+      transition: opacity 0.2s ease, transform 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+    }
+    #chat-panel.hidden-panel {
+      opacity: 0;
+      transform: scale(0.92) translateY(12px);
+      pointer-events: none;
+    }
+    #chat-panel.visible-panel {
+      opacity: 1;
+      transform: scale(1) translateY(0);
+      pointer-events: auto;
+    }
+    .message-enter {
+      animation: message-in 0.25s ease forwards;
+    }
+    @keyframes message-in {
+      from { opacity: 0; transform: translateY(8px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+    #messages::-webkit-scrollbar { width: 4px; }
+    #messages::-webkit-scrollbar-thumb { background: #99f6e4; border-radius: 9999px; }
+  </style>
+</head>
+<body class="min-h-screen bg-gradient-to-br from-slate-50 via-teal-50/40 to-cyan-50 font-sans antialiased">
+
+  <!-- Demo landing content -->
+  <main class="flex min-h-screen flex-col items-center justify-center px-6 text-center">
+    <div class="mb-4 inline-flex items-center gap-2 rounded-full bg-dental-100 px-4 py-1.5 text-sm font-medium text-dental-800">
+      <span class="h-2 w-2 rounded-full bg-dental-500"></span>
+      AI Lead Capture Demo
+    </div>
+    <h1 class="max-w-xl text-4xl font-bold tracking-tight text-slate-900 sm:text-5xl">
+      Bright Smile Dental
+    </h1>
+    <p class="mt-4 max-w-md text-lg text-slate-600">
+      Click the chat bubble in the corner to talk with our virtual receptionist and schedule your visit.
+    </p>
+  </main>
+
+  <!-- Chat widget -->
+  <div id="chat-widget" class="fixed bottom-5 right-5 z-50 flex flex-col items-end gap-3">
+
+    <!-- Panel -->
+    <div
+      id="chat-panel"
+      class="hidden-panel flex h-[32rem] w-[22rem] flex-col overflow-hidden rounded-2xl border border-teal-100 bg-white shadow-2xl shadow-teal-900/10 sm:w-96"
+      role="dialog"
+      aria-label="Chat with Bright Smile Dental"
+      aria-hidden="true"
+    >
+      <!-- Header -->
+      <div class="flex items-center gap-3 bg-gradient-to-r from-dental-600 to-dental-700 px-4 py-3.5 text-white">
+        <div class="flex h-10 w-10 items-center justify-center rounded-full bg-white/20 text-lg">🦷</div>
+        <div class="flex-1 min-w-0">
+          <p class="font-semibold leading-tight">Bright Smile Dental</p>
+          <p class="text-xs text-teal-100">Virtual receptionist · Online now</p>
+        </div>
+        <button
+          id="close-btn"
+          type="button"
+          class="rounded-lg p-1.5 text-teal-100 transition hover:bg-white/10 hover:text-white"
+          aria-label="Close chat"
+        >
+          <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+            <path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12" />
+          </svg>
+        </button>
+      </div>
+
+      <!-- Messages -->
+      <div id="messages" class="flex-1 space-y-3 overflow-y-auto bg-slate-50/80 px-4 py-4"></div>
+
+      <!-- Typing indicator (hidden by default) -->
+      <div id="typing-indicator" class="hidden px-4 pb-2">
+        <div class="inline-flex items-center gap-1 rounded-2xl rounded-bl-sm bg-white px-4 py-2.5 shadow-sm ring-1 ring-slate-100">
+          <span class="h-2 w-2 rounded-full bg-dental-400 animate-bounce-dot" style="animation-delay: -0.32s"></span>
+          <span class="h-2 w-2 rounded-full bg-dental-400 animate-bounce-dot" style="animation-delay: -0.16s"></span>
+          <span class="h-2 w-2 rounded-full bg-dental-400 animate-bounce-dot"></span>
+        </div>
+      </div>
+
+      <!-- Input -->
+      <form id="chat-form" class="border-t border-slate-100 bg-white p-3">
+        <div class="flex items-end gap-2">
+          <textarea
+            id="message-input"
+            rows="1"
+            placeholder="Type a message…"
+            class="max-h-24 flex-1 resize-none rounded-xl border border-slate-200 bg-slate-50 px-3.5 py-2.5 text-sm text-slate-800 placeholder:text-slate-400 focus:border-dental-500 focus:bg-white focus:outline-none focus:ring-2 focus:ring-dental-500/20"
+            aria-label="Your message"
+          ></textarea>
+          <button
+            id="send-btn"
+            type="submit"
+            class="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-dental-600 text-white transition hover:bg-dental-700 disabled:cursor-not-allowed disabled:opacity-50"
+            aria-label="Send message"
+          >
+            <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+              <path stroke-linecap="round" stroke-linejoin="round" d="M12 19l9 2-9-18-9 18 9-2zm0 0v-8" />
+            </svg>
+          </button>
+        </div>
+      </form>
+    </div>
+
+    <!-- Toggle button -->
+    <button
+      id="toggle-btn"
+      type="button"
+      class="group flex h-14 w-14 items-center justify-center rounded-full bg-dental-600 text-white shadow-lg shadow-dental-600/30 transition hover:bg-dental-700 hover:shadow-xl hover:shadow-dental-600/40 focus:outline-none focus:ring-4 focus:ring-dental-500/30"
+      aria-label="Open chat"
+      aria-expanded="false"
+    >
+      <svg id="icon-chat" xmlns="http://www.w3.org/2000/svg" class="h-7 w-7 transition group-hover:scale-110" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+        <path stroke-linecap="round" stroke-linejoin="round" d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z" />
+      </svg>
+      <svg id="icon-close" xmlns="http://www.w3.org/2000/svg" class="hidden h-7 w-7" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+        <path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12" />
+      </svg>
+      <span id="unread-badge" class="absolute -right-0.5 -top-0.5 hidden h-5 w-5 items-center justify-center rounded-full bg-red-500 text-[10px] font-bold text-white">1</span>
+    </button>
+  </div>
+
+  <script>
+    const WELCOME =
+      "Hi there! 👋 Welcome to Bright Smile Dental. I'm here to help you get started. May I have your name so we can assist you?";
+
+    const state = {
+      open: false,
+      loading: false,
+      messages: [{ role: 'assistant', content: WELCOME }],
+      greeted: false,
+    };
+
+    const panel = document.getElementById('chat-panel');
+    const messagesEl = document.getElementById('messages');
+    const typingEl = document.getElementById('typing-indicator');
+    const form = document.getElementById('chat-form');
+    const input = document.getElementById('message-input');
+    const sendBtn = document.getElementById('send-btn');
+    const toggleBtn = document.getElementById('toggle-btn');
+    const closeBtn = document.getElementById('close-btn');
+    const iconChat = document.getElementById('icon-chat');
+    const iconClose = document.getElementById('icon-close');
+    const unreadBadge = document.getElementById('unread-badge');
+
+    function renderMessages() {
+      messagesEl.innerHTML = state.messages
+        .map((msg) => {
+          const isUser = msg.role === 'user';
+          return `
+            <div class="message-enter flex ${isUser ? 'justify-end' : 'justify-start'}">
+              <div class="max-w-[85%] rounded-2xl px-3.5 py-2.5 text-sm leading-relaxed shadow-sm ${
+                isUser
+                  ? 'rounded-br-sm bg-dental-600 text-white'
+                  : 'rounded-bl-sm bg-white text-slate-700 ring-1 ring-slate-100'
+              }">${escapeHtml(msg.content)}</div>
+            </div>`;
+        })
+        .join('');
+      messagesEl.scrollTop = messagesEl.scrollHeight;
+    }
+
+    function escapeHtml(text) {
+      const div = document.createElement('div');
+      div.textContent = text;
+      return div.innerHTML;
+    }
+
+    function setLoading(loading) {
+      state.loading = loading;
+      sendBtn.disabled = loading;
+      input.disabled = loading;
+      typingEl.classList.toggle('hidden', !loading);
+      if (loading) messagesEl.scrollTop = messagesEl.scrollHeight;
+    }
+
+    function openChat() {
+      state.open = true;
+      panel.classList.remove('hidden-panel');
+      panel.classList.add('visible-panel');
+      panel.setAttribute('aria-hidden', 'false');
+      toggleBtn.setAttribute('aria-expanded', 'true');
+      toggleBtn.setAttribute('aria-label', 'Close chat');
+      iconChat.classList.add('hidden');
+      iconClose.classList.remove('hidden');
+      unreadBadge.classList.add('hidden');
+      input.focus();
+    }
+
+    function closeChat() {
+      state.open = false;
+      panel.classList.remove('visible-panel');
+      panel.classList.add('hidden-panel');
+      panel.setAttribute('aria-hidden', 'true');
+      toggleBtn.setAttribute('aria-expanded', 'false');
+      toggleBtn.setAttribute('aria-label', 'Open chat');
+      iconChat.classList.remove('hidden');
+      iconClose.classList.add('hidden');
+    }
+
+    toggleBtn.addEventListener('click', () => (state.open ? closeChat() : openChat()));
+    closeBtn.addEventListener('click', closeChat);
+
+    input.addEventListener('keydown', (e) => {
+      if (e.key === 'Enter' && !e.shiftKey) {
+        e.preventDefault();
+        form.requestSubmit();
+      }
+    });
+
+    input.addEventListener('input', () => {
+      input.style.height = 'auto';
+      input.style.height = Math.min(input.scrollHeight, 96) + 'px';
+    });
+
+    form.addEventListener('submit', async (e) => {
+      e.preventDefault();
+      const text = input.value.trim();
+      if (!text || state.loading) return;
+
+      state.messages.push({ role: 'user', content: text });
+      input.value = '';
+      input.style.height = 'auto';
+      renderMessages();
+      setLoading(true);
+
+      try {
+        const res = await fetch('/api/chat', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ messages: state.messages }),
+        });
+
+        const data = await res.json();
+        if (!res.ok) throw new Error(data.error || 'Request failed');
+
+        state.messages.push({ role: 'assistant', content: data.reply });
+        renderMessages();
+
+        if (!state.open) {
+          unreadBadge.classList.remove('hidden');
+        }
+      } catch (err) {
+        state.messages.push({
+          role: 'assistant',
+          content: "Sorry, I'm having trouble connecting right now. Please try again in a moment.",
+        });
+        renderMessages();
+        console.error(err);
+      } finally {
+        setLoading(false);
+      }
+    });
+
+    renderMessages();
+  </script>
+</body>
+</html>

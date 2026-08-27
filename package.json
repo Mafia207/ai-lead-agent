@@ -1,0 +1,14 @@
+{
+  "name": "ai-lead-agent",
+  "version": "1.0.0",
+  "description": "Lightweight AI lead capture chatbot for dental offices",
+  "type": "module",
+  
+  "dependencies": {
+    "@google/genai": "^1.52.0"
+  },
+  "main": "index.js",
+  "keywords": [],
+  "author": "",
+  "license": "ISC"
+}
